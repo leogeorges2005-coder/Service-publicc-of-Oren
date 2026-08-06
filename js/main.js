@@ -10,7 +10,9 @@ const modalClose = document.getElementById("modalClose");
 // Ouvre la fenêtre et la remplit avec les infos de la carte cliquée.
 // Ces infos viennent des attributs data-name / data-role / data-bio écrits dans le HTML.
 function openModal(card) {
-  modalAvatar.textContent = card.querySelector(".avatar").textContent;
+  const cardAvatar = card.querySelector(".avatar");
+  modalAvatar.src = cardAvatar.src;
+  modalAvatar.alt = cardAvatar.alt;
   modalName.textContent = card.dataset.name;
   modalRole.textContent = card.dataset.role;
   modalBio.textContent = card.dataset.bio;

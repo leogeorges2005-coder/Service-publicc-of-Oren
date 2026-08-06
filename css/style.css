@@ -310,13 +310,8 @@ section h2 {
   height: 64px;
   margin: 0 auto 0.8rem;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.2rem;
+  /* "object-fit: cover" évite que la photo soit déformée si elle n'est pas carrée */
+  object-fit: cover;
 }
 
 .staff-card h3 {
@@ -390,13 +385,7 @@ section h2 {
   height: 88px;
   margin: 0 auto 1rem;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.8rem;
+  object-fit: cover;
 }
 
 .modal-box h3 {
