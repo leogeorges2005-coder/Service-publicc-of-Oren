@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSPD — Los Santos RP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="lspd">
+
+  <header class="navbar">
+    <div class="brand">LOS SANTOS <span>RP</span></div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="lspd.html" class="active">LSPD</a>
+      <a href="lsfd.html">LSFD</a>
+      <a href="sahp.html">SAHP</a>
+      <a href="sams.html">SAMS</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="badge">LSPD</span>
+    <h1>Los Santos Police Department</h1>
+    <p>La police de Los Santos, chargée de la sécurité et du maintien de l'ordre dans la ville.</p>
+  </section>
+
+  <main>
+
+    <section>
+      <h2>Présentation & rôle</h2>
+      <p>
+        Le LSPD est l'organisation policière principale de la ville de Los Santos.
+        Ses agents patrouillent les rues, interviennent sur les délits et crimes,
+        et assurent la sécurité des citoyens. L'organisation est structurée en
+        plusieurs unités : patrouille, circulation, enquêtes et intervention.
+      </p>
+    </section>
+
+    <section>
+      <h2>Postes de police</h2>
+      <div class="grid-2">
+
+        <div class="info-card">
+          <h3>Mission Row Police Station</h3>
+          <div class="meta">Quartier général</div>
+          <p>Poste principal du LSPD, situé au centre-ville. Accueil, cellules et bureaux administratifs.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Vespucci Police Station</h3>
+          <div class="meta">Poste secondaire</div>
+          <p>Poste couvrant le secteur de la plage et du sud-ouest de la ville.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Davis Police Station</h3>
+          <div class="meta">Poste secondaire</div>
+          <p>Poste couvrant le secteur est de Los Santos.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>Effectifs & grades</h2>
+
+      <div class="staff-grid">
+        <div class="staff-card"
+             data-name="John Smith"
+             data-role="Chef de police"
+             data-bio="À la tête du LSPD depuis plusieurs années, John Smith supervise l'ensemble des unités et fixe les priorités opérationnelles de la police de Los Santos.">
+          <div class="avatar">JS</div>
+          <h3>John Smith</h3>
+          <p class="role">Chef de police</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Grade</th>
+            <th>Nom</th>
+            <th>Unité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Capitaine</td>
+            <td>À définir</td>
+            <td>Patrouille</td>
+          </tr>
+          <tr>
+            <td>Officier</td>
+            <td>À définir</td>
+            <td>Patrouille</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div id="modalAvatar"></div>
+      <h3 id="modalName"></h3>
+      <p class="role" id="modalRole"></p>
+      <p class="bio" id="modalBio"></p>
+    </div>
+  </div>
+
+  <footer>
+    Site créé pour Los Santos RP — projet d'apprentissage
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

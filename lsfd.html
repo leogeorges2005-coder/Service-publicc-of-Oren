@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSFD — Los Santos RP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="lsfd">
+
+  <header class="navbar">
+    <div class="brand">LOS SANTOS <span>RP</span></div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="lspd.html">LSPD</a>
+      <a href="lsfd.html" class="active">LSFD</a>
+      <a href="sahp.html">SAHP</a>
+      <a href="sams.html">SAMS</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="badge">LSFD</span>
+    <h1>Los Santos Fire Department</h1>
+    <p>Les pompiers de Los Santos, chargés de lutter contre les incendies et de porter secours.</p>
+  </section>
+
+  <main>
+
+    <section>
+      <h2>Présentation & rôle</h2>
+      <p>
+        Le LSFD intervient sur les incendies, les accidents et les situations d'urgence
+        nécessitant une extraction ou un sauvetage. L'organisation travaille en
+        coordination étroite avec le SAMS lors des interventions impliquant des blessés.
+      </p>
+    </section>
+
+    <section>
+      <h2>Casernes</h2>
+      <div class="grid-2">
+
+        <div class="info-card">
+          <h3>Caserne de Davis</h3>
+          <div class="meta">Caserne principale</div>
+          <p>Caserne centrale équipée de camions d'intervention et d'ambulances.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Caserne de Vinewood</h3>
+          <div class="meta">Caserne secondaire</div>
+          <p>Couvre le secteur nord de la ville et les collines de Vinewood.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>Effectifs & grades</h2>
+
+      <div class="staff-grid">
+        <div class="staff-card"
+             data-name="Maria Garcia"
+             data-role="Chef des pompiers"
+             data-bio="Maria Garcia dirige le LSFD et coordonne les interventions sur les incendies et opérations de secours majeures de la ville.">
+          <div class="avatar">MG</div>
+          <h3>Maria Garcia</h3>
+          <p class="role">Chef des pompiers</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Grade</th>
+            <th>Nom</th>
+            <th>Unité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lieutenant</td>
+            <td>À définir</td>
+            <td>Intervention</td>
+          </tr>
+          <tr>
+            <td>Pompier</td>
+            <td>À définir</td>
+            <td>Intervention</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div id="modalAvatar"></div>
+      <h3 id="modalName"></h3>
+      <p class="role" id="modalRole"></p>
+      <p class="bio" id="modalBio"></p>
+    </div>
+  </div>
+
+  <footer>
+    Site créé pour Los Santos RP — projet d'apprentissage
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

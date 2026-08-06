@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAHP — Los Santos RP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="sahp">
+
+  <header class="navbar">
+    <div class="brand">LOS SANTOS <span>RP</span></div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="lspd.html">LSPD</a>
+      <a href="lsfd.html">LSFD</a>
+      <a href="sahp.html" class="active">SAHP</a>
+      <a href="sams.html">SAMS</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="badge">SAHP</span>
+    <h1>San Andreas Highway Patrol</h1>
+    <p>La patrouille routière de l'État, en charge de la sécurité sur les autoroutes et routes de San Andreas.</p>
+  </section>
+
+  <main>
+
+    <section>
+      <h2>Présentation & rôle</h2>
+      <p>
+        Le SAHP surveille les grands axes routiers de l'État, en dehors des limites de la ville.
+        Ses agents interviennent sur les excès de vitesse, accidents de la route et poursuites
+        sur autoroute.
+      </p>
+    </section>
+
+    <section>
+      <h2>Postes</h2>
+      <div class="grid-2">
+
+        <div class="info-card">
+          <h3>Poste de Paleto Bay</h3>
+          <div class="meta">Poste principal</div>
+          <p>Poste couvrant le nord de l'État et les routes de montagne.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Poste de Sandy Shores</h3>
+          <div class="meta">Poste secondaire</div>
+          <p>Couvre le désert et les axes reliant Sandy Shores à Los Santos.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>Effectifs & grades</h2>
+
+      <div class="staff-grid">
+        <div class="staff-card"
+             data-name="Robert Lee"
+             data-role="Commandant"
+             data-bio="Robert Lee commande le SAHP et supervise la sécurité sur l'ensemble du réseau routier de l'État de San Andreas.">
+          <div class="avatar">RL</div>
+          <h3>Robert Lee</h3>
+          <p class="role">Commandant</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Grade</th>
+            <th>Nom</th>
+            <th>Unité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sergent</td>
+            <td>À définir</td>
+            <td>Patrouille</td>
+          </tr>
+          <tr>
+            <td>Trooper</td>
+            <td>À définir</td>
+            <td>Patrouille</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div id="modalAvatar"></div>
+      <h3 id="modalName"></h3>
+      <p class="role" id="modalRole"></p>
+      <p class="bio" id="modalBio"></p>
+    </div>
+  </div>
+
+  <footer>
+    Site créé pour Los Santos RP — projet d'apprentissage
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

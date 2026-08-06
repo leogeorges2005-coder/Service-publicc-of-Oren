@@ -1,0 +1,405 @@
+/* ============================================
+   VARIABLES
+   Des "variables CSS" : on définit une couleur une fois,
+   puis on la réutilise partout avec var(--nom).
+   Ça permet de changer tout le thème en un seul endroit.
+   ============================================ */
+:root {
+  --bg: #0f1115;
+  --bg-panel: #171a21;
+  --bg-panel-light: #1f232c;
+  --border: #2a2f3a;
+  --text: #e8e9ec;
+  --text-muted: #9aa0ab;
+  --accent: #3b82f6; /* couleur par défaut, écrasée par page */
+}
+
+/* Chaque page d'organisation redéfinit --accent pour changer sa couleur */
+body.lspd { --accent: #3b82f6; }  /* bleu police */
+body.lsfd { --accent: #ef4444; }  /* rouge pompiers */
+body.sahp { --accent: #f59e0b; }  /* orange patrouille autoroute */
+body.sams { --accent: #22c55e; }  /* vert services médicaux */
+
+/* ============================================
+   BASE
+   ============================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.navbar .brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.navbar .brand span {
+  color: var(--accent);
+}
+
+.navbar nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.navbar nav a {
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar nav a:hover {
+  background: var(--bg-panel-light);
+  color: var(--text);
+}
+
+.navbar nav a.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ============================================
+   HERO (bandeau du haut sur chaque page)
+   ============================================ */
+.hero {
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero .badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  color: var(--text-muted);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   CONTENU / SECTIONS
+   ============================================ */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+section h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+  border-left: 4px solid var(--accent);
+  padding-left: 0.7rem;
+}
+
+/* ============================================
+   GRILLE DE CARTES (page d'accueil)
+   ============================================ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.2rem;
+}
+
+.org-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.org-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--card-color, var(--accent));
+}
+
+.org-card .badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--card-color, var(--accent));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.org-card h3 {
+  margin-bottom: 0.4rem;
+  font-size: 1.15rem;
+}
+
+.org-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   FICHES / EFFECTIFS
+   ============================================ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+}
+
+.info-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+}
+
+.info-card .meta {
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.info-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   FICHES MEMBRES (photos cliquables de la direction)
+   ============================================ */
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.staff-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  /* "transition" dit au navigateur d'animer le changement plutôt que de le faire d'un coup */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* Au survol : la carte remonte un peu et un halo de la couleur de la page apparaît */
+.staff-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 25px -8px var(--accent);
+}
+
+.staff-card .avatar {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 0.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.staff-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.staff-card .role {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   FENÊTRE (modale) affichée au clic sur une fiche
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+/* La classe "open" est ajoutée par le JavaScript quand on clique sur une fiche */
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  transform: scale(0.85) translateY(10px);
+  transition: transform 0.25s ease;
+}
+
+/* Quand l'overlay est ouvert, la boîte revient à sa taille normale : effet de zoom */
+.modal-overlay.open .modal-box {
+  transform: scale(1) translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text);
+}
+
+#modalAvatar {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.modal-box h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.modal-box .role {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.modal-box .bio {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+th {
+  background: var(--bg-panel-light);
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+}
