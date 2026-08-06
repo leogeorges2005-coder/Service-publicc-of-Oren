@@ -95,6 +95,58 @@ img {
 }
 
 /* ============================================
+   MENU DÉROULANT (ex : SAMS -> SAMS Nord / SAMS Sud)
+   ============================================ */
+.nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.4rem;
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 160px;
+  padding: 0.4rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 50;
+}
+
+/* Le menu apparaît quand la souris survole tout le bloc .nav-dropdown */
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.dropdown-menu a:hover {
+  background: var(--bg-panel);
+  color: var(--text);
+}
+
+.dropdown-menu a.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ============================================
    HERO (bandeau du haut sur chaque page)
    ============================================ */
 .hero {
