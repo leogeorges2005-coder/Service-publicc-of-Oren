@@ -14,11 +14,7 @@
   --accent: #3b82f6; /* couleur par défaut, écrasée par page */
 }
 
-/* Chaque page d'organisation redéfinit --accent pour changer sa couleur */
-body.lspd { --accent: #3b82f6; }  /* bleu police */
-body.lsfd { --accent: #ef4444; }  /* rouge pompiers */
-body.sahp { --accent: #f59e0b; }  /* orange patrouille autoroute */
-body.sams { --accent: #22c55e; }  /* vert services médicaux */
+body.coroner { --accent: #8b5cf6; } /* violet bureau du coroner */
 
 /* ============================================
    BASE
@@ -95,58 +91,6 @@ img {
 }
 
 /* ============================================
-   MENU DÉROULANT (ex : SAMS -> SAMS Nord / SAMS Sud)
-   ============================================ */
-.nav-dropdown {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.nav-dropdown .dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.4rem;
-  background: var(--bg-panel-light);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  min-width: 160px;
-  padding: 0.4rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-6px);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-  z-index: 50;
-}
-
-/* Le menu apparaît quand la souris survole tout le bloc .nav-dropdown */
-.nav-dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.dropdown-menu a {
-  display: block;
-  padding: 0.5rem 0.7rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  color: var(--text-muted);
-}
-
-.dropdown-menu a:hover {
-  background: var(--bg-panel);
-  color: var(--text);
-}
-
-.dropdown-menu a.active {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* ============================================
    HERO (bandeau du haut sur chaque page)
    ============================================ */
 .hero {
@@ -201,49 +145,6 @@ section h2 {
 }
 
 /* ============================================
-   GRILLE DE CARTES (page d'accueil)
-   ============================================ */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1.2rem;
-}
-
-.org-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.5rem;
-  transition: transform 0.15s, border-color 0.15s;
-}
-
-.org-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--card-color, var(--accent));
-}
-
-.org-card .badge {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  background: var(--card-color, var(--accent));
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 0.8rem;
-}
-
-.org-card h3 {
-  margin-bottom: 0.4rem;
-  font-size: 1.15rem;
-}
-
-.org-card p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-/* ============================================
    FICHES / EFFECTIFS
    ============================================ */
 .grid-2 {
@@ -252,80 +153,8 @@ section h2 {
   gap: 1rem;
 }
 
-.info-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 8px;
-  padding: 1.2rem 1.4rem;
-}
-
-.info-card h3 {
-  font-size: 1.05rem;
-  margin-bottom: 0.4rem;
-}
-
-.info-card .meta {
-  color: var(--accent);
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.info-card p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
 /* ============================================
-   FICHES MEMBRES (photos cliquables de la direction)
-   ============================================ */
-.staff-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1.2rem;
-  margin-bottom: 1.5rem;
-}
-
-.staff-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.4rem 1rem;
-  text-align: center;
-  cursor: pointer;
-  /* "transition" dit au navigateur d'animer le changement plutôt que de le faire d'un coup */
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-/* Au survol : la carte remonte un peu et un halo de la couleur de la page apparaît */
-.staff-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--accent);
-  box-shadow: 0 10px 25px -8px var(--accent);
-}
-
-.staff-card .avatar {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 0.8rem;
-  border-radius: 50%;
-  /* "object-fit: cover" évite que la photo soit déformée si elle n'est pas carrée */
-  object-fit: cover;
-}
-
-.staff-card h3 {
-  font-size: 1rem;
-  margin-bottom: 0.2rem;
-}
-
-.staff-card .role {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-
-/* ============================================
-   FENÊTRE (modale) affichée au clic sur une fiche
+   FENÊTRE (modale) affichée au clic sur un dossier
    ============================================ */
 .modal-overlay {
   position: fixed;
@@ -380,30 +209,9 @@ section h2 {
   color: var(--text);
 }
 
-#modalAvatar {
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .modal-box h3 {
   font-size: 1.2rem;
   margin-bottom: 0.2rem;
-}
-
-.modal-box .role {
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-.modal-box .bio {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
 }
 
 table {
@@ -432,6 +240,286 @@ th {
 
 tr:last-child td {
   border-bottom: none;
+}
+
+/* ============================================
+   REGISTRE PUBLIC (page Coroner)
+   ============================================ */
+.registry-search {
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 1.2rem;
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.registry-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.present {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+.status-badge.absent {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+}
+
+/* ============================================
+   FORMULAIRES (connexion, dossier coroner)
+   ============================================ */
+.auth-card {
+  max-width: 380px;
+  margin: 0 auto;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+}
+
+.auth-card h3 {
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+}
+
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.workspace-header .who {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.form-field {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.65rem 0.8rem;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.form-field small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 1.2rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  background: var(--bg-panel-light);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.dossier-form {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.dossier-form h4 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.4rem 0 0.8rem;
+}
+
+.dossier-form h4:first-child {
+  margin-top: 0;
+}
+
+.photo-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.photo-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.status-msg {
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.status-msg.success {
+  color: #22c55e;
+}
+
+.status-msg.error {
+  color: #ef4444;
+}
+
+/* ============================================
+   DOSSIERS CORONER (liste + fiche détaillée)
+   ============================================ */
+.dossier-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.1rem 1.3rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.dossier-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.dossier-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.dossier-card .meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.dossier-modal .modal-box {
+  max-width: 560px;
+  text-align: left;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.dossier-modal h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.3rem;
+  text-align: center;
+}
+
+.dossier-modal .role {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.dossier-detail-row {
+  margin-bottom: 1rem;
+}
+
+.dossier-detail-row .label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.dossier-detail-row .value {
+  font-size: 0.92rem;
+  white-space: pre-line;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.dossier-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.6rem;
+}
+
+.dossier-gallery img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
 }
 
 /* ============================================

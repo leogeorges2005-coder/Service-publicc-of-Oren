@@ -3,70 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Los Santos RP — Services d'urgence</title>
+  <title>Bureau du Coroner — San Andreas</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="coroner">
 
   <header class="navbar">
-    <div class="brand">LOS SANTOS <span>RP</span></div>
-    <nav>
-      <a href="index.html" class="active">Accueil</a>
-      <a href="lspd.html">LSPD</a>
-      <a href="lsfd.html">LSFD</a>
-      <a href="sahp.html">SAHP</a>
-      <div class="nav-dropdown">
-        <a href="sams.html" class="dropdown-toggle">SAMS</a>
-        <div class="dropdown-menu">
-          <a href="sams-nord.html">SAMS Nord</a>
-          <a href="sams-sud.html">SAMS Sud</a>
-        </div>
-      </div>
-    </nav>
+    <div class="brand">Bureau du <span>Coroner</span></div>
   </header>
 
   <section class="hero">
-    <span class="badge">Annuaire</span>
-    <h1>Services d'urgence de Los Santos</h1>
-    <p>Retrouve la présentation, les postes et les effectifs de chaque organisation du serveur.</p>
+    <span class="badge">Coroner</span>
+    <h1>Bureau du Coroner de San Andreas</h1>
+    <p>Registre officiel des décès et espace de travail sécurisé pour les légistes de l'État.</p>
   </section>
 
   <main>
+
     <section>
-      <h2>Organisations</h2>
-      <div class="card-grid">
+      <h2>Registre public des décès</h2>
+      <p style="color:var(--text-muted); margin-bottom:1rem;">
+        Cette liste est consultable par tous. Elle ne contient que l'identité et les dates ;
+        les éléments d'enquête restent réservés au bureau du coroner.
+      </p>
+      <input type="text" id="registreSearch" class="registry-search" placeholder="Rechercher un nom...">
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Date de naissance</th>
+            <th>Date de décès</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody id="registreBody"></tbody>
+      </table>
+      <p id="registreEmpty" class="registry-empty" style="display:none;">Aucun décès enregistré pour le moment.</p>
+    </section>
 
-        <a class="org-card" href="lspd.html" style="--card-color:#3b82f6">
-          <span class="badge">LSPD</span>
-          <h3>Los Santos Police Department</h3>
-          <p>La police de Los Santos, chargée du maintien de l'ordre en ville.</p>
-        </a>
+    <section>
+      <h2>Espace coroner</h2>
 
-        <a class="org-card" href="lsfd.html" style="--card-color:#ef4444">
-          <span class="badge">LSFD</span>
-          <h3>Los Santos Fire Department</h3>
-          <p>Pompiers et secouristes intervenant sur les incendies et urgences.</p>
-        </a>
+      <!-- Non connecté -->
+      <div id="authLoggedOut" class="auth-card">
+        <h3>Connexion</h3>
+        <form id="loginForm">
+          <div class="form-field">
+            <label for="loginEmail">Adresse e-mail</label>
+            <input type="email" id="loginEmail" required autocomplete="username">
+          </div>
+          <div class="form-field">
+            <label for="loginPassword">Mot de passe</label>
+            <input type="password" id="loginPassword" required autocomplete="current-password">
+          </div>
+          <p id="loginError" class="status-msg error"></p>
+          <button type="submit" class="btn">Se connecter</button>
+        </form>
+      </div>
 
-        <a class="org-card" href="sahp.html" style="--card-color:#f59e0b">
-          <span class="badge">SAHP</span>
-          <h3>San Andreas Highway Patrol</h3>
-          <p>La patrouille en charge de la sécurité sur les autoroutes de l'État.</p>
-        </a>
+      <!-- Connecté mais pas encore whitelisté -->
+      <div id="authPending" class="auth-card" style="display:none;">
+        <h3>Compte en attente de validation</h3>
+        <p style="color:var(--text-muted); margin-bottom:1.2rem;">
+          Ton compte existe mais n'a pas encore été ajouté à la liste des coroners autorisés.
+          Contacte un administrateur pour être validé.
+        </p>
+        <button class="btn btn-secondary logout-btn">Se déconnecter</button>
+      </div>
 
-        <a class="org-card" href="sams.html" style="--card-color:#22c55e">
-          <span class="badge">SAMS</span>
-          <h3>San Andreas Medical Services</h3>
-          <p>Les services médicaux d'urgence de l'État de San Andreas.</p>
-        </a>
+      <!-- Connecté et whitelisté -->
+      <div id="authWorkspace" style="display:none;">
+        <div class="workspace-header">
+          <span class="who">Connecté en tant que <strong id="currentUserEmail"></strong></span>
+          <div style="display:flex; gap:0.6rem;">
+            <button id="toggleFormBtn" class="btn">+ Ajouter un dossier</button>
+            <button class="btn btn-secondary logout-btn">Se déconnecter</button>
+          </div>
+        </div>
 
+        <form id="dossierForm" class="dossier-form" style="display:none;">
+          <h4>Identité</h4>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="fNom">Nom *</label>
+              <input type="text" id="fNom" required>
+            </div>
+            <div class="form-field">
+              <label for="fPrenom">Prénom *</label>
+              <input type="text" id="fPrenom" required>
+            </div>
+            <div class="form-field">
+              <label for="fDateNaissance">Date de naissance</label>
+              <input type="date" id="fDateNaissance">
+            </div>
+            <div class="form-field">
+              <label for="fDateDeces">Date de décès *</label>
+              <input type="date" id="fDateDeces" required>
+            </div>
+          </div>
+
+          <h4>Scène & corps</h4>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="fLieu">Lieu de découverte</label>
+              <input type="text" id="fLieu" placeholder="Ex : Ruelle, Vinewood Blvd">
+            </div>
+            <div class="form-field">
+              <label for="fPosition">Position du corps</label>
+              <select id="fPosition">
+                <option value="dos">Sur le dos (décubitus dorsal)</option>
+                <option value="ventre">Sur le ventre (décubitus ventral)</option>
+                <option value="cote">Sur le côté (décubitus latéral)</option>
+                <option value="assis">Assis</option>
+                <option value="autre">Autre (préciser)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field" id="positionAutreField" style="display:none;">
+            <label for="fPositionAutre">Préciser la position</label>
+            <input type="text" id="fPositionAutre">
+          </div>
+
+          <div class="form-field">
+            <label for="fDegats">Dégâts observés sur le corps</label>
+            <textarea id="fDegats" placeholder="Blessures, traumatismes, causes apparentes..."></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="fTatouages">Tatouages</label>
+              <textarea id="fTatouages" placeholder="Un par ligne, ex :&#10;Aigle sur l'avant-bras droit&#10;Inscription dans le cou"></textarea>
+              <small>Un élément par ligne.</small>
+            </div>
+            <div class="form-field">
+              <label for="fCicatrices">Cicatrices</label>
+              <textarea id="fCicatrices" placeholder="Un par ligne, ex :&#10;Cicatrice à l'arcade sourcilière"></textarea>
+              <small>Un élément par ligne.</small>
+            </div>
+          </div>
+
+          <h4>Photos</h4>
+          <div class="form-field">
+            <label for="fPhotos">Photos du dossier</label>
+            <input type="file" id="fPhotos" accept="image/*" multiple disabled>
+            <small>Bientôt disponible (nécessite d'activer le stockage Firebase).</small>
+            <div id="photoPreview" class="photo-thumbs"></div>
+          </div>
+
+          <button type="submit" class="btn">Enregistrer le dossier</button>
+          <p id="formStatus" class="status-msg"></p>
+        </form>
+
+        <h3 style="margin-bottom:1rem;">Dossiers enregistrés</h3>
+        <div id="dossiersList" class="grid-2"></div>
       </div>
     </section>
+
   </main>
+
+  <!-- Fiche détaillée d'un dossier -->
+  <div class="modal-overlay dossier-modal" id="dossierModal">
+    <div class="modal-box">
+      <button class="modal-close" id="dossierModalClose">&times;</button>
+      <h3 id="dmName"></h3>
+      <p class="role" id="dmDates"></p>
+
+      <div class="dossier-detail-row">
+        <span class="label">Lieu de découverte</span>
+        <span class="value" id="dmLieu"></span>
+      </div>
+      <div class="dossier-detail-row">
+        <span class="label">Position du corps</span>
+        <span class="value" id="dmPosition"></span>
+      </div>
+      <div class="dossier-detail-row">
+        <span class="label">Dégâts observés</span>
+        <span class="value" id="dmDegats"></span>
+      </div>
+      <div class="dossier-detail-row">
+        <span class="label">Tatouages</span>
+        <span id="dmTatouages"></span>
+      </div>
+      <div class="dossier-detail-row">
+        <span class="label">Cicatrices</span>
+        <span id="dmCicatrices"></span>
+      </div>
+      <div class="dossier-detail-row">
+        <span class="label">Photos</span>
+        <div class="dossier-gallery" id="dmGallery"></div>
+      </div>
+    </div>
+  </div>
 
   <footer>
     Site créé pour Oren
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/coroner.js"></script>
 </body>
 </html>

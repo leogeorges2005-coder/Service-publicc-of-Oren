@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estWhitelliste() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/whitelist/$(request.auth.uid));
+    }
+
+    // Registre public : nom, prénom, dates de naissance/décès.
+    // Lecture libre pour tout le monde, écriture réservée aux coroners whitelistés.
+    match /registre_public/{docId} {
+      allow read: if true;
+      allow write: if estWhitelliste();
+    }
+
+    // Dossiers complets (photos, lieu, position, dégâts, tatouages, cicatrices...).
+    // Réservés en lecture et écriture aux coroners whitelistés.
+    match /dossiers_coroner/{docId} {
+      allow read, write: if estWhitelliste();
+    }
+
+    // Liste blanche : un document par coroner autorisé, dont l'ID est son UID Firebase Auth.
+    // Se gère uniquement à la main depuis la console Firebase (jamais depuis le site).
+    match /whitelist/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+  }
+}

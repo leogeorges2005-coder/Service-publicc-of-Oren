@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Photos des dossiers coroner : réservées aux comptes whitelistés
+    // (vérifié via la collection Firestore "whitelist").
+    match /dossiers/{dossierId}/{fileName} {
+      allow read, write: if request.auth != null &&
+        firestore.exists(/databases/(default)/documents/whitelist/$(request.auth.uid));
+    }
+  }
+}
+
+// Si la console Firebase refuse la règle ci-dessus (message d'erreur sur "firestore.exists"),
+// remplace-la temporairement par la version simplifiée suivante, puis réessaie plus tard :
+//
+// match /dossiers/{dossierId}/{fileName} {
+//   allow read, write: if request.auth != null;
+// }
