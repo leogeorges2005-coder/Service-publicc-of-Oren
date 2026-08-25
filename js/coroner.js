@@ -93,7 +93,7 @@ const pendingBox = document.getElementById("authPending");
 const workspaceBox = document.getElementById("authWorkspace");
 const loginForm = document.getElementById("loginForm");
 const loginError = document.getElementById("loginError");
-const currentUserEmail = document.getElementById("currentUserEmail");
+const currentUserName = document.getElementById("currentUserName");
 
 function showOnly(activeBox) {
   [loggedOutBox, pendingBox, workspaceBox].forEach((box) => {
@@ -117,15 +117,54 @@ document.querySelectorAll(".logout-btn").forEach((btn) => {
   btn.addEventListener("click", () => auth.signOut());
 });
 
+const demandeAccesBtn = document.getElementById("demandeAccesBtn");
+const demandeStatus = document.getElementById("demandeStatus");
+const dPrenom = document.getElementById("dPrenom");
+const dNom = document.getElementById("dNom");
+
+demandeAccesBtn.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const prenom = dPrenom.value.trim();
+  const nom = dNom.value.trim();
+  if (!prenom || !nom) {
+    demandeStatus.textContent = "Indique ton prénom et ton nom.";
+    demandeStatus.className = "status-msg error";
+    return;
+  }
+
+  demandeAccesBtn.disabled = true;
+  demandeStatus.textContent = "Envoi de la demande...";
+  demandeStatus.className = "status-msg";
+  try {
+    // Enregistré tout de suite dans "coroners" pour que le nom soit déjà là si la demande est acceptée.
+    await db.collection("coroners").doc(user.uid).set({ nom, prenom });
+    await db.collection("demandes_acces").doc(user.uid).set(
+      { email: user.email, nom, prenom, demandeLe: firebase.firestore.FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+    demandeStatus.textContent = "Demande envoyée. Un administrateur doit valider ton accès.";
+    demandeStatus.className = "status-msg success";
+  } catch (err) {
+    console.error("Erreur lors de la demande d'accès :", err);
+    demandeStatus.textContent = "Erreur lors de l'envoi de la demande.";
+    demandeStatus.className = "status-msg error";
+    demandeAccesBtn.disabled = false;
+  }
+});
+
 auth.onAuthStateChanged(async (user) => {
   if (!user) {
     showOnly(loggedOutBox);
     stopDossiersListener();
+    stopAdminListeners();
     return;
   }
 
+  let whitelistDoc;
   try {
-    const whitelistDoc = await db.collection("whitelist").doc(user.uid).get();
+    whitelistDoc = await db.collection("whitelist").doc(user.uid).get();
     if (!whitelistDoc.exists) {
       showOnly(pendingBox);
       return;
@@ -136,9 +175,74 @@ auth.onAuthStateChanged(async (user) => {
     return;
   }
 
-  currentUserEmail.textContent = user.email;
   showOnly(workspaceBox);
   startDossiersListener();
+  chargerProfilCoroner(user.uid, user.email);
+
+  const estAdminUtilisateur = whitelistDoc.data().admin === true;
+  adminPanel.style.display = estAdminUtilisateur ? "" : "none";
+  if (estAdminUtilisateur) {
+    startAdminListeners();
+  } else {
+    stopAdminListeners();
+  }
+});
+
+/* ============================================
+   PROFIL — nom/prénom choisis par le coroner pour se reconnaître dans les dossiers
+   ============================================ */
+const profileForm = document.getElementById("profileForm");
+const pPrenom = document.getElementById("pPrenom");
+const pNom = document.getElementById("pNom");
+const profileStatus = document.getElementById("profileStatus");
+
+let coronerIdentite = { nom: "", prenom: "" };
+
+function nomAffiche(identite, repli) {
+  const complet = `${identite.prenom} ${identite.nom}`.trim();
+  return complet || repli;
+}
+
+async function chargerProfilCoroner(uid, email) {
+  try {
+    const doc = await db.collection("coroners").doc(uid).get();
+    coronerIdentite = doc.exists
+      ? { nom: doc.data().nom || "", prenom: doc.data().prenom || "" }
+      : { nom: "", prenom: "" };
+  } catch (err) {
+    console.error("Erreur de lecture du profil coroner :", err);
+    coronerIdentite = { nom: "", prenom: "" };
+  }
+  pPrenom.value = coronerIdentite.prenom;
+  pNom.value = coronerIdentite.nom;
+  currentUserName.textContent = nomAffiche(coronerIdentite, email);
+}
+
+profileForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const prenom = pPrenom.value.trim();
+  const nom = pNom.value.trim();
+
+  if (!prenom || !nom) {
+    profileStatus.textContent = "Le prénom et le nom sont obligatoires.";
+    profileStatus.className = "status-msg error";
+    return;
+  }
+
+  profileStatus.textContent = "Enregistrement...";
+  profileStatus.className = "status-msg";
+
+  try {
+    await db.collection("coroners").doc(auth.currentUser.uid).set({ nom, prenom });
+    coronerIdentite = { nom, prenom };
+    currentUserName.textContent = nomAffiche(coronerIdentite, auth.currentUser.email);
+    profileStatus.textContent = "Nom enregistré.";
+    profileStatus.className = "status-msg success";
+  } catch (err) {
+    console.error("Erreur lors de l'enregistrement du profil :", err);
+    profileStatus.textContent = "Erreur lors de l'enregistrement.";
+    profileStatus.className = "status-msg error";
+  }
 });
 
 /* ============================================
@@ -226,6 +330,7 @@ dossierForm.addEventListener("submit", async (event) => {
       cicatrices,
       photos: photoUrls,
       createdBy: auth.currentUser.email,
+      creePar: nomAffiche(coronerIdentite, auth.currentUser.email),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -271,6 +376,7 @@ function startDossiersListener() {
           card.innerHTML = `
             <h3>${escapeHtml(d.prenom)} ${escapeHtml(d.nom)}</h3>
             <p class="meta">${formatDate(d.dateDeces)} · ${escapeHtml(d.lieu || "Lieu inconnu")}</p>
+            <p class="meta">Par ${escapeHtml(d.creePar || "?")}</p>
           `;
           card.addEventListener("click", () => openDossierModal(d));
           dossiersList.appendChild(card);
@@ -296,6 +402,7 @@ function stopDossiersListener() {
 const dossierModal = document.getElementById("dossierModal");
 const dmName = document.getElementById("dmName");
 const dmDates = document.getElementById("dmDates");
+const dmCreePar = document.getElementById("dmCreePar");
 const dmLieu = document.getElementById("dmLieu");
 const dmPosition = document.getElementById("dmPosition");
 const dmDegats = document.getElementById("dmDegats");
@@ -307,6 +414,7 @@ const dossierModalClose = document.getElementById("dossierModalClose");
 function openDossierModal(d) {
   dmName.textContent = `${d.prenom} ${d.nom}`;
   dmDates.textContent = `Né(e) le ${formatDate(d.dateNaissance)} — Décédé(e) le ${formatDate(d.dateDeces)}`;
+  dmCreePar.textContent = d.creePar || "Non renseigné";
   dmLieu.textContent = d.lieu || "Non renseigné";
   dmPosition.textContent = d.position || "Non renseignée";
   dmDegats.textContent = d.degats || "Aucun dégât renseigné";
@@ -326,4 +434,126 @@ dossierModal.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") dossierModal.classList.remove("open");
+});
+
+/* ============================================
+   ADMINISTRATION — choisir qui a accès à l'espace coroner
+   Visible uniquement pour le compte marqué "admin: true" dans la whitelist.
+   ============================================ */
+const adminPanel = document.getElementById("adminPanel");
+const demandesList = document.getElementById("demandesList");
+const demandesEmpty = document.getElementById("demandesEmpty");
+const whitelistList = document.getElementById("whitelistList");
+
+let demandesUnsub = null;
+let whitelistUnsub = null;
+
+function startAdminListeners() {
+  if (demandesUnsub) return;
+
+  demandesUnsub = db.collection("demandes_acces").onSnapshot(
+    (snap) => {
+      demandesList.innerHTML = "";
+      snap.forEach((doc) => {
+        const d = doc.data();
+        const nomDemandeur = `${d.prenom || ""} ${d.nom || ""}`.trim() || d.email || "Compte inconnu";
+        const row = document.createElement("div");
+        row.className = "dossier-card";
+        row.innerHTML = `
+          <h3>${escapeHtml(nomDemandeur)}</h3>
+          <p class="meta">Demandé le ${d.demandeLe ? formatDate(d.demandeLe.toDate()) : "?"}</p>
+          <div style="display:flex; gap:0.6rem; margin-top:0.8rem;">
+            <button class="btn" data-action="autoriser" data-uid="${doc.id}" data-email="${escapeHtml(d.email || "")}">Autoriser</button>
+            <button class="btn btn-secondary" data-action="refuser" data-uid="${doc.id}">Refuser</button>
+          </div>
+        `;
+        demandesList.appendChild(row);
+      });
+      demandesEmpty.style.display = snap.empty ? "block" : "none";
+    },
+    (err) => console.error("Erreur de lecture des demandes d'accès :", err)
+  );
+
+  whitelistUnsub = db.collection("whitelist").onSnapshot(
+    (snap) => {
+      whitelistList.innerHTML = "";
+      snap.forEach((doc) => {
+        const d = doc.data();
+        const estMoi = doc.id === auth.currentUser.uid;
+        const row = document.createElement("div");
+        row.className = "dossier-card";
+        const nomProvisoire = (d.email || "Coroner (nom non renseigné)") + (d.admin ? " (admin)" : "");
+        row.innerHTML = `
+          <h3 data-role="nom">${escapeHtml(nomProvisoire)}</h3>
+          <div style="margin-top:0.8rem;">
+            <button class="btn btn-secondary" data-action="revoquer" data-uid="${doc.id}" ${estMoi ? "disabled" : ""}>
+              ${estMoi ? "C'est toi" : "Révoquer l'accès"}
+            </button>
+          </div>
+        `;
+        whitelistList.appendChild(row);
+
+        db.collection("coroners")
+          .doc(doc.id)
+          .get()
+          .then((cdoc) => {
+            if (!cdoc.exists) return;
+            const c = cdoc.data();
+            const nom = `${c.prenom || ""} ${c.nom || ""}`.trim();
+            if (!nom) return;
+            const h3 = row.querySelector('[data-role="nom"]');
+            h3.textContent = nom + (d.admin ? " (admin)" : "");
+          })
+          .catch((err) => console.error("Erreur de lecture d'un profil coroner :", err));
+      });
+    },
+    (err) => console.error("Erreur de lecture de la whitelist :", err)
+  );
+}
+
+function stopAdminListeners() {
+  if (demandesUnsub) {
+    demandesUnsub();
+    demandesUnsub = null;
+  }
+  if (whitelistUnsub) {
+    whitelistUnsub();
+    whitelistUnsub = null;
+  }
+  demandesList.innerHTML = "";
+  whitelistList.innerHTML = "";
+}
+
+document.addEventListener("click", async (event) => {
+  const btn = event.target.closest("button[data-action]");
+  if (!btn) return;
+  const { action, uid, email } = btn.dataset;
+
+  if (action === "autoriser") {
+    btn.disabled = true;
+    try {
+      await db.collection("whitelist").doc(uid).set({ autorise: true, email: email || null }, { merge: true });
+      await db.collection("demandes_acces").doc(uid).delete();
+    } catch (err) {
+      console.error("Erreur lors de l'autorisation :", err);
+      btn.disabled = false;
+    }
+  } else if (action === "refuser") {
+    btn.disabled = true;
+    try {
+      await db.collection("demandes_acces").doc(uid).delete();
+    } catch (err) {
+      console.error("Erreur lors du refus :", err);
+      btn.disabled = false;
+    }
+  } else if (action === "revoquer") {
+    if (!confirm("Retirer l'accès de ce coroner à l'espace coroner ?")) return;
+    btn.disabled = true;
+    try {
+      await db.collection("whitelist").doc(uid).delete();
+    } catch (err) {
+      console.error("Erreur lors de la révocation :", err);
+      btn.disabled = false;
+    }
+  }
 });

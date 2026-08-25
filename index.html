@@ -67,20 +67,48 @@
         <h3>Compte en attente de validation</h3>
         <p style="color:var(--text-muted); margin-bottom:1.2rem;">
           Ton compte existe mais n'a pas encore été ajouté à la liste des coroners autorisés.
-          Contacte un administrateur pour être validé.
+          Indique ton prénom et ton nom pour que l'administrateur puisse te reconnaître.
         </p>
-        <button class="btn btn-secondary logout-btn">Se déconnecter</button>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="dPrenom">Prénom</label>
+            <input type="text" id="dPrenom" required>
+          </div>
+          <div class="form-field">
+            <label for="dNom">Nom</label>
+            <input type="text" id="dNom" required>
+          </div>
+        </div>
+        <button id="demandeAccesBtn" class="btn">Demander l'accès</button>
+        <p id="demandeStatus" class="status-msg"></p>
+        <button class="btn btn-secondary logout-btn" style="margin-top:0.8rem;">Se déconnecter</button>
       </div>
 
       <!-- Connecté et whitelisté -->
       <div id="authWorkspace" style="display:none;">
         <div class="workspace-header">
-          <span class="who">Connecté en tant que <strong id="currentUserEmail"></strong></span>
+          <span class="who">Connecté en tant que <strong id="currentUserName"></strong></span>
           <div style="display:flex; gap:0.6rem;">
             <button id="toggleFormBtn" class="btn">+ Ajouter un dossier</button>
             <button class="btn btn-secondary logout-btn">Se déconnecter</button>
           </div>
         </div>
+
+        <form id="profileForm" class="dossier-form">
+          <h4>Mon nom (affiché sur mes dossiers)</h4>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="pPrenom">Prénom</label>
+              <input type="text" id="pPrenom" required>
+            </div>
+            <div class="form-field">
+              <label for="pNom">Nom</label>
+              <input type="text" id="pNom" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-secondary">Enregistrer mon nom</button>
+          <p id="profileStatus" class="status-msg"></p>
+        </form>
 
         <form id="dossierForm" class="dossier-form" style="display:none;">
           <h4>Identité</h4>
@@ -157,6 +185,21 @@
 
         <h3 style="margin-bottom:1rem;">Dossiers enregistrés</h3>
         <div id="dossiersList" class="grid-2"></div>
+
+        <div id="adminPanel" style="display:none; margin-top:2.5rem;">
+          <h3 style="margin-bottom:1rem;">Administration — accès à l'espace coroner</h3>
+
+          <div class="dossier-form">
+            <h4>Demandes d'accès en attente</h4>
+            <div id="demandesList" class="grid-2"></div>
+            <p id="demandesEmpty" class="registry-empty" style="display:none;">Aucune demande en attente.</p>
+          </div>
+
+          <div class="dossier-form">
+            <h4>Coroners autorisés</h4>
+            <div id="whitelistList" class="grid-2"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -169,6 +212,10 @@
       <h3 id="dmName"></h3>
       <p class="role" id="dmDates"></p>
 
+      <div class="dossier-detail-row">
+        <span class="label">Enregistré par</span>
+        <span class="value" id="dmCreePar"></span>
+      </div>
       <div class="dossier-detail-row">
         <span class="label">Lieu de découverte</span>
         <span class="value" id="dmLieu"></span>

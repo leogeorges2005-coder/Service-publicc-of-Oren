@@ -7,6 +7,11 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/whitelist/$(request.auth.uid));
     }
 
+    function estAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/whitelist/$(request.auth.uid)).data.admin == true;
+    }
+
     // Registre public : nom, prénom, dates de naissance/décès.
     // Lecture libre pour tout le monde, écriture réservée aux coroners whitelistés.
     match /registre_public/{docId} {
@@ -21,10 +26,23 @@ service cloud.firestore {
     }
 
     // Liste blanche : un document par coroner autorisé, dont l'ID est son UID Firebase Auth.
-    // Se gère uniquement à la main depuis la console Firebase (jamais depuis le site).
+    // Chacun peut lire son propre statut ; seul un admin peut créer/modifier/supprimer des entrées.
     match /whitelist/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow read: if request.auth != null && (request.auth.uid == uid || estAdmin());
+      allow write: if estAdmin();
+    }
+
+    // Identité choisie par chaque coroner (nom, prénom affichés dans ses dossiers).
+    // Chacun ne peut modifier que son propre document ; un admin peut tous les lire (liste d'administration).
+    match /coroners/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || estAdmin());
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Demandes d'accès envoyées par un compte connecté mais pas encore whitelisté.
+    // Chacun gère sa propre demande ; un admin peut toutes les lire/supprimer pour les traiter.
+    match /demandes_acces/{uid} {
+      allow read, write: if request.auth != null && (request.auth.uid == uid || estAdmin());
     }
   }
 }
