@@ -122,6 +122,7 @@ const signupForm = document.getElementById("signupForm");
 const signupError = document.getElementById("signupError");
 const toggleAuthMode = document.getElementById("toggleAuthMode");
 const navAuthButtons = document.getElementById("navAuthButtons");
+const navWorkspaceButtons = document.getElementById("navWorkspaceButtons");
 const navConnexion = document.getElementById("navConnexion");
 const navInscription = document.getElementById("navInscription");
 const espaceCoroner = document.getElementById("espaceCoroner");
@@ -226,6 +227,7 @@ demandeAccesBtn.addEventListener("click", async () => {
 
 auth.onAuthStateChanged(async (user) => {
   navAuthButtons.style.display = user ? "none" : "";
+  navWorkspaceButtons.style.display = "none";
 
   if (!user) {
     showOnly(loggedOutBox);
@@ -252,6 +254,7 @@ auth.onAuthStateChanged(async (user) => {
   }
 
   showOnly(workspaceBox);
+  navWorkspaceButtons.style.display = "";
   startDossiersListener();
   chargerProfilCoroner(user.uid, user.email);
 
