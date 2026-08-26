@@ -121,16 +121,35 @@ const authCardTitle = document.getElementById("authCardTitle");
 const signupForm = document.getElementById("signupForm");
 const signupError = document.getElementById("signupError");
 const toggleAuthMode = document.getElementById("toggleAuthMode");
+const navAuthButtons = document.getElementById("navAuthButtons");
+const navConnexion = document.getElementById("navConnexion");
+const navInscription = document.getElementById("navInscription");
+const espaceCoroner = document.getElementById("espaceCoroner");
+
+function setModeAuth(inscription) {
+  loginForm.style.display = inscription ? "none" : "";
+  signupForm.style.display = inscription ? "" : "none";
+  authCardTitle.textContent = inscription ? "Créer un compte" : "Connexion";
+  toggleAuthMode.textContent = inscription
+    ? "Déjà un compte ? Se connecter"
+    : "Pas encore de compte ? Créer un compte";
+}
 
 toggleAuthMode.addEventListener("click", (event) => {
   event.preventDefault();
-  const versInscription = loginForm.style.display !== "none";
-  loginForm.style.display = versInscription ? "none" : "";
-  signupForm.style.display = versInscription ? "" : "none";
-  authCardTitle.textContent = versInscription ? "Créer un compte" : "Connexion";
-  toggleAuthMode.textContent = versInscription
-    ? "Déjà un compte ? Se connecter"
-    : "Pas encore de compte ? Créer un compte";
+  setModeAuth(loginForm.style.display !== "none");
+});
+
+navConnexion.addEventListener("click", (event) => {
+  event.preventDefault();
+  setModeAuth(false);
+  espaceCoroner.scrollIntoView({ behavior: "smooth" });
+});
+
+navInscription.addEventListener("click", (event) => {
+  event.preventDefault();
+  setModeAuth(true);
+  espaceCoroner.scrollIntoView({ behavior: "smooth" });
 });
 
 signupForm.addEventListener("submit", async (event) => {
@@ -206,6 +225,8 @@ demandeAccesBtn.addEventListener("click", async () => {
 });
 
 auth.onAuthStateChanged(async (user) => {
+  navAuthButtons.style.display = user ? "none" : "";
+
   if (!user) {
     showOnly(loggedOutBox);
     stopDossiersListener();
