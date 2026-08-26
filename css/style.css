@@ -313,6 +313,27 @@ tr:last-child td {
   font-size: 0.9rem;
 }
 
+/* ============================================
+   MENU DÉROULANT "Mon nom" (bouton du header de l'espace coroner)
+   ============================================ */
+.profile-dropdown {
+  position: relative;
+}
+
+.dropdown-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  width: 260px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  z-index: 50;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
 .form-field {
   margin-bottom: 1rem;
   display: flex;

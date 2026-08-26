@@ -271,6 +271,19 @@ const profileForm = document.getElementById("profileForm");
 const pPrenom = document.getElementById("pPrenom");
 const pNom = document.getElementById("pNom");
 const profileStatus = document.getElementById("profileStatus");
+const toggleProfileBtn = document.getElementById("toggleProfileBtn");
+const profileDropdownPanel = document.getElementById("profileDropdownPanel");
+
+toggleProfileBtn.addEventListener("click", (event) => {
+  event.stopPropagation();
+  profileDropdownPanel.style.display = profileDropdownPanel.style.display === "none" ? "" : "none";
+});
+
+document.addEventListener("click", (event) => {
+  if (profileDropdownPanel.style.display === "none") return;
+  if (event.target.closest(".profile-dropdown")) return;
+  profileDropdownPanel.style.display = "none";
+});
 
 let coronerIdentite = { nom: "", prenom: "" };
 
@@ -314,6 +327,9 @@ profileForm.addEventListener("submit", async (event) => {
     currentUserName.textContent = nomAffiche(coronerIdentite, auth.currentUser.email);
     profileStatus.textContent = "Nom enregistré.";
     profileStatus.className = "status-msg success";
+    setTimeout(() => {
+      profileDropdownPanel.style.display = "none";
+    }, 900);
   } catch (err) {
     console.error("Erreur lors de l'enregistrement du profil :", err);
     profileStatus.textContent = "Erreur lors de l'enregistrement.";

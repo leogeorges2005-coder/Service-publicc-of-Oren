@@ -111,26 +111,27 @@
         <div class="workspace-header">
           <span class="who">Connecté en tant que <strong id="currentUserName"></strong></span>
           <div style="display:flex; gap:0.6rem;">
+            <div class="profile-dropdown">
+              <button id="toggleProfileBtn" class="btn btn-secondary">Mon nom ▾</button>
+              <div id="profileDropdownPanel" class="dropdown-panel" style="display:none;">
+                <form id="profileForm">
+                  <div class="form-field">
+                    <label for="pPrenom">Prénom</label>
+                    <input type="text" id="pPrenom" required>
+                  </div>
+                  <div class="form-field">
+                    <label for="pNom">Nom</label>
+                    <input type="text" id="pNom" required>
+                  </div>
+                  <button type="submit" class="btn btn-secondary">Enregistrer mon nom</button>
+                  <p id="profileStatus" class="status-msg"></p>
+                </form>
+              </div>
+            </div>
             <button id="toggleFormBtn" class="btn">+ Ajouter un dossier</button>
             <button class="btn btn-secondary logout-btn">Se déconnecter</button>
           </div>
         </div>
-
-        <form id="profileForm" class="dossier-form">
-          <h4>Mon nom (affiché sur mes dossiers)</h4>
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="pPrenom">Prénom</label>
-              <input type="text" id="pPrenom" required>
-            </div>
-            <div class="form-field">
-              <label for="pNom">Nom</label>
-              <input type="text" id="pNom" required>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-secondary">Enregistrer mon nom</button>
-          <p id="profileStatus" class="status-msg"></p>
-        </form>
 
         <form id="dossierForm" class="dossier-form" style="display:none;">
           <h4>Identité</h4>
