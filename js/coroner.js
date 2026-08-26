@@ -257,6 +257,7 @@ auth.onAuthStateChanged(async (user) => {
 
   const estAdminUtilisateur = whitelistDoc.data().admin === true;
   adminPanel.style.display = estAdminUtilisateur ? "" : "none";
+  goToAdminBtn.style.display = estAdminUtilisateur ? "" : "none";
   if (estAdminUtilisateur) {
     startAdminListeners();
   } else {
@@ -533,9 +534,14 @@ document.addEventListener("keydown", (event) => {
    Visible uniquement pour le compte marqué "admin: true" dans la whitelist.
    ============================================ */
 const adminPanel = document.getElementById("adminPanel");
+const goToAdminBtn = document.getElementById("goToAdminBtn");
 const demandesList = document.getElementById("demandesList");
 const demandesEmpty = document.getElementById("demandesEmpty");
 const whitelistList = document.getElementById("whitelistList");
+
+goToAdminBtn.addEventListener("click", () => {
+  adminPanel.scrollIntoView({ behavior: "smooth" });
+});
 
 let demandesUnsub = null;
 let whitelistUnsub = null;
