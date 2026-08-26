@@ -47,7 +47,7 @@
 
       <!-- Non connecté -->
       <div id="authLoggedOut" class="auth-card">
-        <h3>Connexion</h3>
+        <h3 id="authCardTitle">Connexion</h3>
         <form id="loginForm">
           <div class="form-field">
             <label for="loginEmail">Adresse e-mail</label>
@@ -60,6 +60,24 @@
           <p id="loginError" class="status-msg error"></p>
           <button type="submit" class="btn">Se connecter</button>
         </form>
+
+        <form id="signupForm" style="display:none;">
+          <div class="form-field">
+            <label for="signupEmail">Adresse e-mail</label>
+            <input type="email" id="signupEmail" required autocomplete="username">
+          </div>
+          <div class="form-field">
+            <label for="signupPassword">Mot de passe</label>
+            <input type="password" id="signupPassword" required autocomplete="new-password" minlength="6">
+            <small>6 caractères minimum.</small>
+          </div>
+          <p id="signupError" class="status-msg error"></p>
+          <button type="submit" class="btn">Créer mon compte</button>
+        </form>
+
+        <p style="margin-top:1.2rem; font-size:0.85rem;">
+          <a href="#" id="toggleAuthMode" style="color:var(--accent); text-decoration:underline;">Pas encore de compte ? Créer un compte</a>
+        </p>
       </div>
 
       <!-- Connecté mais pas encore whitelisté -->

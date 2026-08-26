@@ -113,6 +113,49 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
+/* ============================================
+   CRÉATION DE COMPTE — le compte créé n'a accès à rien tant qu'un
+   administrateur ne l'a pas validé (voir la demande d'accès plus bas).
+   ============================================ */
+const authCardTitle = document.getElementById("authCardTitle");
+const signupForm = document.getElementById("signupForm");
+const signupError = document.getElementById("signupError");
+const toggleAuthMode = document.getElementById("toggleAuthMode");
+
+toggleAuthMode.addEventListener("click", (event) => {
+  event.preventDefault();
+  const versInscription = loginForm.style.display !== "none";
+  loginForm.style.display = versInscription ? "none" : "";
+  signupForm.style.display = versInscription ? "" : "none";
+  authCardTitle.textContent = versInscription ? "Créer un compte" : "Connexion";
+  toggleAuthMode.textContent = versInscription
+    ? "Déjà un compte ? Se connecter"
+    : "Pas encore de compte ? Créer un compte";
+});
+
+signupForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  signupError.textContent = "";
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  try {
+    await auth.createUserWithEmailAndPassword(email, password);
+    // onAuthStateChanged prend le relais : le compte n'étant pas whitelisté,
+    // l'écran "en attente de validation" s'affiche automatiquement.
+  } catch (err) {
+    if (err.code === "auth/email-already-in-use") {
+      signupError.textContent = "Un compte existe déjà avec cet e-mail.";
+    } else if (err.code === "auth/weak-password") {
+      signupError.textContent = "Le mot de passe doit faire au moins 6 caractères.";
+    } else if (err.code === "auth/invalid-email") {
+      signupError.textContent = "Adresse e-mail invalide.";
+    } else {
+      console.error("Erreur lors de la création du compte :", err);
+      signupError.textContent = "Impossible de créer le compte.";
+    }
+  }
+});
+
 document.querySelectorAll(".logout-btn").forEach((btn) => {
   btn.addEventListener("click", () => auth.signOut());
 });
@@ -138,17 +181,25 @@ demandeAccesBtn.addEventListener("click", async () => {
   demandeStatus.textContent = "Envoi de la demande...";
   demandeStatus.className = "status-msg";
   try {
+    // Force un jeton d'authentification à jour : utile juste après une inscription toute fraîche.
+    await user.getIdToken(true);
+
     // Enregistré tout de suite dans "coroners" pour que le nom soit déjà là si la demande est acceptée.
     await db.collection("coroners").doc(user.uid).set({ nom, prenom });
     await db.collection("demandes_acces").doc(user.uid).set(
       { email: user.email, nom, prenom, demandeLe: firebase.firestore.FieldValue.serverTimestamp() },
       { merge: true }
     );
+
+    // Vérifie que l'écriture est bien passée côté serveur avant d'annoncer un succès.
+    const verif = await db.collection("demandes_acces").doc(user.uid).get({ source: "server" });
+    if (!verif.exists) throw new Error("demande-non-enregistree");
+
     demandeStatus.textContent = "Demande envoyée. Un administrateur doit valider ton accès.";
     demandeStatus.className = "status-msg success";
   } catch (err) {
     console.error("Erreur lors de la demande d'accès :", err);
-    demandeStatus.textContent = "Erreur lors de l'envoi de la demande.";
+    demandeStatus.textContent = "Erreur lors de l'envoi de la demande, réessaie.";
     demandeStatus.className = "status-msg error";
     demandeAccesBtn.disabled = false;
   }
@@ -167,11 +218,15 @@ auth.onAuthStateChanged(async (user) => {
     whitelistDoc = await db.collection("whitelist").doc(user.uid).get();
     if (!whitelistDoc.exists) {
       showOnly(pendingBox);
+      stopDossiersListener();
+      stopAdminListeners();
       return;
     }
   } catch (err) {
     console.error("Erreur de vérification de la whitelist :", err);
     showOnly(pendingBox);
+    stopDossiersListener();
+    stopAdminListeners();
     return;
   }
 
