@@ -263,6 +263,16 @@ tr:last-child td {
   padding: 1rem 0;
 }
 
+/* Actif seulement quand un coroner est connecté : les lignes ouvrent le dossier complet */
+#registreTable.clickable tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+#registreTable.clickable tbody tr:hover {
+  background: var(--bg-panel-light);
+}
+
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.6rem;

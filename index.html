@@ -52,8 +52,11 @@
         Cette liste est consultable par tous. Elle ne contient que l'identité et les dates ;
         les éléments d'enquête restent réservés au bureau du coroner.
       </p>
+      <p id="registreAideCoroner" class="registry-empty" style="display:none;">
+        Connecté en tant que coroner : clique sur une ligne pour ouvrir le dossier complet.
+      </p>
       <input type="text" id="registreSearch" class="registry-search" placeholder="Rechercher un nom...">
-      <table>
+      <table id="registreTable">
         <thead>
           <tr>
             <th>Nom</th>
@@ -206,9 +209,6 @@
           <button type="submit" class="btn">Enregistrer le dossier</button>
           <p id="formStatus" class="status-msg"></p>
         </form>
-
-        <h3 style="margin-bottom:1rem;">Dossiers enregistrés</h3>
-        <div id="dossiersList" class="grid-2"></div>
 
         <div id="adminPanel" style="display:none; margin-top:2.5rem;">
           <h3 style="margin-bottom:1rem;">Administration — accès à l'espace coroner</h3>

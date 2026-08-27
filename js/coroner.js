@@ -31,7 +31,10 @@ function linesToTags(text) {
 const registreBody = document.getElementById("registreBody");
 const registreSearch = document.getElementById("registreSearch");
 const registreEmpty = document.getElementById("registreEmpty");
+const registreTable = document.getElementById("registreTable");
+const registreAideCoroner = document.getElementById("registreAideCoroner");
 let registreData = [];
+let estCoronerConnecte = false;
 
 const DUREE_MORGUE_MS = 14 * 24 * 60 * 60 * 1000; // deux semaines
 
@@ -87,7 +90,7 @@ function renderRegistre(filter = "") {
   registreBody.innerHTML = rows
     .map(
       (d) => `
-        <tr>
+        <tr data-id="${d.id}">
           <td>${escapeHtml(d.nom)}</td>
           <td>${escapeHtml(d.prenom)}</td>
           <td>${formatDate(d.dateNaissance)}</td>
@@ -99,6 +102,20 @@ function renderRegistre(filter = "") {
 
   registreEmpty.style.display = rows.length ? "none" : "block";
 }
+
+// Un coroner connecté peut cliquer une ligne du registre public pour ouvrir le dossier complet.
+registreBody.addEventListener("click", async (event) => {
+  if (!estCoronerConnecte) return;
+  const tr = event.target.closest("tr[data-id]");
+  if (!tr) return;
+  try {
+    const doc = await db.collection("dossiers_coroner").doc(tr.dataset.id).get();
+    if (!doc.exists) return;
+    openDossierModal(doc.id, doc.data());
+  } catch (err) {
+    console.error("Erreur d'ouverture du dossier :", err);
+  }
+});
 
 db.collection("registre_public")
   .orderBy("dateDeces", "desc")
@@ -256,13 +273,19 @@ demandeAccesBtn.addEventListener("click", async () => {
   }
 });
 
+function setCoronerConnecte(actif) {
+  estCoronerConnecte = actif;
+  registreTable.classList.toggle("clickable", actif);
+  registreAideCoroner.style.display = actif ? "" : "none";
+}
+
 auth.onAuthStateChanged(async (user) => {
   navAuthButtons.style.display = user ? "none" : "";
   navWorkspaceButtons.style.display = "none";
 
   if (!user) {
     showOnly(loggedOutBox);
-    stopDossiersListener();
+    setCoronerConnecte(false);
     stopAdminListeners();
     return;
   }
@@ -272,21 +295,21 @@ auth.onAuthStateChanged(async (user) => {
     whitelistDoc = await db.collection("whitelist").doc(user.uid).get();
     if (!whitelistDoc.exists) {
       showOnly(pendingBox);
-      stopDossiersListener();
+      setCoronerConnecte(false);
       stopAdminListeners();
       return;
     }
   } catch (err) {
     console.error("Erreur de vérification de la whitelist :", err);
     showOnly(pendingBox);
-    stopDossiersListener();
+    setCoronerConnecte(false);
     stopAdminListeners();
     return;
   }
 
   showOnly(workspaceBox);
   navWorkspaceButtons.style.display = "";
-  startDossiersListener();
+  setCoronerConnecte(true);
   chargerProfilCoroner(user.uid, user.email);
 
   const estAdminUtilisateur = whitelistDoc.data().admin === true;
@@ -485,49 +508,6 @@ dossierForm.addEventListener("submit", async (event) => {
     formStatus.className = "status-msg error";
   }
 });
-
-/* ============================================
-   LISTE DES DOSSIERS COMPLETS — réservée aux coroners connectés
-   ============================================ */
-const dossiersList = document.getElementById("dossiersList");
-let dossiersUnsub = null;
-
-function startDossiersListener() {
-  if (dossiersUnsub) return;
-  dossiersUnsub = db
-    .collection("dossiers_coroner")
-    .orderBy("dateDeces", "desc")
-    .onSnapshot(
-      (snap) => {
-        dossiersList.innerHTML = "";
-        const dossiers = snap.docs.map((doc) => ({ id: doc.id, data: doc.data() }));
-        dossiers.sort((a, b) => ordreMorgueDabord(a.data, b.data));
-        dossiers.forEach(({ id, data: d }) => {
-          const card = document.createElement("div");
-          card.className = "dossier-card";
-          card.innerHTML = `
-            <h3>${escapeHtml(d.prenom)} ${escapeHtml(d.nom)}</h3>
-            <p class="meta">${formatDate(d.dateDeces)} · ${escapeHtml(d.lieu || "Lieu inconnu")}</p>
-            <p class="meta">Par ${escapeHtml(d.creePar || "?")}</p>
-            <p class="meta">${statutBadge(d)}${d.frigo ? ` · Frigo n°${d.frigo}` : ""}</p>
-          `;
-          card.addEventListener("click", () => openDossierModal(id, d));
-          dossiersList.appendChild(card);
-        });
-      },
-      (err) => {
-        console.error("Erreur de lecture des dossiers :", err);
-      }
-    );
-}
-
-function stopDossiersListener() {
-  if (dossiersUnsub) {
-    dossiersUnsub();
-    dossiersUnsub = null;
-  }
-  dossiersList.innerHTML = "";
-}
 
 /* ============================================
    FICHE DÉTAILLÉE D'UN DOSSIER (modale)
