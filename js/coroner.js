@@ -41,10 +41,32 @@ function estEncoreEnMorgue(dateDeces) {
   return Date.now() - deces.getTime() < DUREE_MORGUE_MS;
 }
 
-function statutBadge(dateDeces) {
-  return estEncoreEnMorgue(dateDeces)
+// Un coroner peut forcer manuellement le statut ("sorti" / "en_morgue").
+// Sans réglage manuel ("auto" ou absent), on retombe sur la règle des deux semaines.
+function estEnMorgueEffectif(d) {
+  if (d.statutMorgue === "sorti") return false;
+  if (d.statutMorgue === "en_morgue") return true;
+  return estEncoreEnMorgue(d.dateDeces);
+}
+
+function statutBadge(d) {
+  return estEnMorgueEffectif(d)
     ? '<span class="status-badge present">En morgue</span>'
     : '<span class="status-badge absent">Corps retiré</span>';
+}
+
+// Attribue le plus petit numéro de frigo libre : réutilise automatiquement
+// celui d'un corps sorti entre-temps.
+async function prochainNumeroFrigo() {
+  const snap = await db.collection("dossiers_coroner").get();
+  const occupes = new Set();
+  snap.forEach((doc) => {
+    const d = doc.data();
+    if (d.frigo && estEnMorgueEffectif(d)) occupes.add(d.frigo);
+  });
+  let n = 1;
+  while (occupes.has(n)) n++;
+  return n;
 }
 
 function renderRegistre(filter = "") {
@@ -61,7 +83,7 @@ function renderRegistre(filter = "") {
           <td>${escapeHtml(d.prenom)}</td>
           <td>${formatDate(d.dateNaissance)}</td>
           <td>${formatDate(d.dateDeces)}</td>
-          <td>${statutBadge(d.dateDeces)}</td>
+          <td>${statutBadge(d)}</td>
         </tr>`
     )
     .join("");
@@ -406,6 +428,7 @@ dossierForm.addEventListener("submit", async (event) => {
 
   try {
     const dossierRef = db.collection("dossiers_coroner").doc();
+    const frigo = await prochainNumeroFrigo();
 
     const photoUrls = [];
     for (const file of selectedFiles) {
@@ -425,6 +448,8 @@ dossierForm.addEventListener("submit", async (event) => {
       tatouages,
       cicatrices,
       photos: photoUrls,
+      statutMorgue: "auto",
+      frigo,
       createdBy: auth.currentUser.email,
       creePar: nomAffiche(coronerIdentite, auth.currentUser.email),
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -436,6 +461,7 @@ dossierForm.addEventListener("submit", async (event) => {
       prenom,
       dateNaissance,
       dateDeces,
+      statutMorgue: "auto",
     });
 
     formStatus.textContent = "Dossier enregistré avec succès.";
@@ -473,8 +499,9 @@ function startDossiersListener() {
             <h3>${escapeHtml(d.prenom)} ${escapeHtml(d.nom)}</h3>
             <p class="meta">${formatDate(d.dateDeces)} · ${escapeHtml(d.lieu || "Lieu inconnu")}</p>
             <p class="meta">Par ${escapeHtml(d.creePar || "?")}</p>
+            <p class="meta">${statutBadge(d)}${d.frigo ? ` · Frigo n°${d.frigo}` : ""}</p>
           `;
-          card.addEventListener("click", () => openDossierModal(d));
+          card.addEventListener("click", () => openDossierModal(doc.id, d));
           dossiersList.appendChild(card);
         });
       },
@@ -499,6 +526,9 @@ const dossierModal = document.getElementById("dossierModal");
 const dmName = document.getElementById("dmName");
 const dmDates = document.getElementById("dmDates");
 const dmCreePar = document.getElementById("dmCreePar");
+const dmStatut = document.getElementById("dmStatut");
+const dmFrigo = document.getElementById("dmFrigo");
+const dmToggleStatutBtn = document.getElementById("dmToggleStatutBtn");
 const dmLieu = document.getElementById("dmLieu");
 const dmPosition = document.getElementById("dmPosition");
 const dmDegats = document.getElementById("dmDegats");
@@ -507,10 +537,19 @@ const dmCicatrices = document.getElementById("dmCicatrices");
 const dmGallery = document.getElementById("dmGallery");
 const dossierModalClose = document.getElementById("dossierModalClose");
 
-function openDossierModal(d) {
+let dossierModalId = null;
+
+function openDossierModal(id, d) {
+  dossierModalId = id;
   dmName.textContent = `${d.prenom} ${d.nom}`;
   dmDates.textContent = `Né(e) le ${formatDate(d.dateNaissance)} — Décédé(e) le ${formatDate(d.dateDeces)}`;
   dmCreePar.textContent = d.creePar || "Non renseigné";
+
+  const enMorgue = estEnMorgueEffectif(d);
+  dmStatut.innerHTML = statutBadge(d);
+  dmFrigo.textContent = d.frigo ? `n°${d.frigo}` : "Non attribué";
+  dmToggleStatutBtn.textContent = enMorgue ? "Marquer sorti de la morgue" : "Remettre en morgue";
+
   dmLieu.textContent = d.lieu || "Non renseigné";
   dmPosition.textContent = d.position || "Non renseignée";
   dmDegats.textContent = d.degats || "Aucun dégât renseigné";
@@ -523,6 +562,39 @@ function openDossierModal(d) {
 
   dossierModal.classList.add("open");
 }
+
+dmToggleStatutBtn.addEventListener("click", async () => {
+  if (!dossierModalId) return;
+  dmToggleStatutBtn.disabled = true;
+  try {
+    const docRef = db.collection("dossiers_coroner").doc(dossierModalId);
+    const snap = await docRef.get();
+    const d = snap.data();
+    const enMorgue = estEnMorgueEffectif(d);
+
+    let update;
+    if (enMorgue) {
+      // On libère son frigo pour la prochaine entrée.
+      update = { statutMorgue: "sorti" };
+    } else {
+      // Remise en morgue : nouveau numéro (le sien a pu être repris entre-temps).
+      update = { statutMorgue: "en_morgue", frigo: await prochainNumeroFrigo() };
+    }
+
+    await docRef.update(update);
+    await db.collection("registre_public").doc(dossierModalId).set(
+      { statutMorgue: update.statutMorgue },
+      { merge: true }
+    );
+
+    const refreshed = await docRef.get();
+    openDossierModal(dossierModalId, refreshed.data());
+  } catch (err) {
+    console.error("Erreur lors du changement de statut :", err);
+  } finally {
+    dmToggleStatutBtn.disabled = false;
+  }
+});
 
 dossierModalClose.addEventListener("click", () => dossierModal.classList.remove("open"));
 dossierModal.addEventListener("click", (event) => {
