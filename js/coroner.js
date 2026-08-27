@@ -55,6 +55,15 @@ function statutBadge(d) {
     : '<span class="status-badge absent">Corps retiré</span>';
 }
 
+// Les corps sortis descendent en bas de liste et y restent (tri stable :
+// l'ordre par date, déjà appliqué par Firestore, est conservé dans chaque groupe).
+function ordreMorgueDabord(a, b) {
+  const aEnMorgue = estEnMorgueEffectif(a);
+  const bEnMorgue = estEnMorgueEffectif(b);
+  if (aEnMorgue === bEnMorgue) return 0;
+  return aEnMorgue ? -1 : 1;
+}
+
 // Attribue le plus petit numéro de frigo libre : réutilise automatiquement
 // celui d'un corps sorti entre-temps.
 async function prochainNumeroFrigo() {
@@ -71,9 +80,9 @@ async function prochainNumeroFrigo() {
 
 function renderRegistre(filter = "") {
   const term = filter.trim().toLowerCase();
-  const rows = registreData.filter((d) =>
-    `${d.prenom ?? ""} ${d.nom ?? ""}`.toLowerCase().includes(term)
-  );
+  const rows = registreData
+    .filter((d) => `${d.prenom ?? ""} ${d.nom ?? ""}`.toLowerCase().includes(term))
+    .sort(ordreMorgueDabord);
 
   registreBody.innerHTML = rows
     .map(
@@ -491,8 +500,9 @@ function startDossiersListener() {
     .onSnapshot(
       (snap) => {
         dossiersList.innerHTML = "";
-        snap.forEach((doc) => {
-          const d = doc.data();
+        const dossiers = snap.docs.map((doc) => ({ id: doc.id, data: doc.data() }));
+        dossiers.sort((a, b) => ordreMorgueDabord(a.data, b.data));
+        dossiers.forEach(({ id, data: d }) => {
           const card = document.createElement("div");
           card.className = "dossier-card";
           card.innerHTML = `
@@ -501,7 +511,7 @@ function startDossiersListener() {
             <p class="meta">Par ${escapeHtml(d.creePar || "?")}</p>
             <p class="meta">${statutBadge(d)}${d.frigo ? ` · Frigo n°${d.frigo}` : ""}</p>
           `;
-          card.addEventListener("click", () => openDossierModal(doc.id, d));
+          card.addEventListener("click", () => openDossierModal(id, d));
           dossiersList.appendChild(card);
         });
       },
